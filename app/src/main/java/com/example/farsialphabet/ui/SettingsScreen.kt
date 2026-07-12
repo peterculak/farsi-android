@@ -20,7 +20,7 @@ import com.example.farsialphabet.SettingsRepository
 fun SettingsScreen(
     settingsRepository: SettingsRepository,
     onNavigateBack: () -> Unit,
-    speakText: (String) -> Unit
+    speakLetter: (Int) -> Unit
 ) {
     var reverseMode by remember { mutableStateOf(settingsRepository.isReverseModeEnabled) }
     var autoTransition by remember { mutableStateOf(settingsRepository.isAutoTransitionEnabled) }
@@ -119,7 +119,7 @@ fun SettingsScreen(
                             Text(text = "${letter.name} (${letter.transliteration})", fontSize = 16.sp)
                             Row(verticalAlignment = Alignment.CenterVertically) {
                                 Text(text = "${letter.fullForm}  ${letter.shortForm}", fontSize = 24.sp)
-                                IconButton(onClick = { speakText(letter.fullForm) }) {
+                                IconButton(onClick = { speakLetter(letter.id) }) {
                                     Icon(Icons.Default.PlayArrow, contentDescription = "Pronounce", modifier = Modifier.size(24.dp))
                                 }
                             }

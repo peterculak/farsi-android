@@ -23,7 +23,7 @@ import com.example.farsialphabet.SettingsRepository
 fun PracticeScreen(
     settingsRepository: SettingsRepository,
     onNavigateToSettings: () -> Unit,
-    speakText: (String) -> Unit
+    speakLetter: (Int) -> Unit
 ) {
     val enabledLetters = remember { mutableStateOf(settingsRepository.getEnabledLetters()) }
     val isReverseMode = remember { mutableStateOf(settingsRepository.isReverseModeEnabled) }
@@ -133,7 +133,7 @@ fun PracticeScreen(
                 Spacer(modifier = Modifier.height(16.dp))
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(text = "${targetLetter.fullForm}   ${targetLetter.shortForm}", fontSize = 64.sp, fontWeight = FontWeight.Bold)
-                    IconButton(onClick = { speakText(targetLetter.fullForm) }) {
+                    IconButton(onClick = { speakLetter(targetLetter.id) }) {
                         Icon(Icons.Default.PlayArrow, contentDescription = "Pronounce", modifier = Modifier.size(36.dp))
                     }
                 }

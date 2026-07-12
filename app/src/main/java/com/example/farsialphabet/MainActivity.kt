@@ -1,8 +1,7 @@
 package com.example.farsialphabet
 
+import android.media.MediaPlayer
 import android.os.Bundle
-import android.speech.tts.TextToSpeech
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.fillMaxSize
@@ -20,14 +19,12 @@ enum class Screen {
     Practice, Settings
 }
 
-class MainActivity : ComponentActivity(), TextToSpeech.OnInitListener {
+class MainActivity : ComponentActivity() {
     private lateinit var settingsRepository: SettingsRepository
-    private var tts: TextToSpeech? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         settingsRepository = SettingsRepository(this)
-        tts = TextToSpeech(this, this)
 
         setContent {
             MaterialTheme {
@@ -42,14 +39,14 @@ class MainActivity : ComponentActivity(), TextToSpeech.OnInitListener {
                             PracticeScreen(
                                 settingsRepository = settingsRepository,
                                 onNavigateToSettings = { currentScreen = Screen.Settings },
-                                speakText = ::speak
+                                speakLetter = ::speakLetter
                             )
                         }
                         Screen.Settings -> {
                             SettingsScreen(
                                 settingsRepository = settingsRepository,
                                 onNavigateBack = { currentScreen = Screen.Practice },
-                                speakText = ::speak
+                                speakLetter = ::speakLetter
                             )
                         }
                     }
@@ -58,40 +55,14 @@ class MainActivity : ComponentActivity(), TextToSpeech.OnInitListener {
         }
     }
 
-    override fun onInit(status: Int) {
-        if (status == TextToSpeech.SUCCESS) {
-            val locale = java.util.Locale("fa", "IR")
-            val result = tts?.setLanguage(locale)
-            if (result == TextToSpeech.LANG_MISSING_DATA || result == TextToSpeech.LANG_NOT_SUPPORTED) {
-                Log.e("TTS", "Language not supported or missing data")
-                if (result == TextToSpeech.LANG_MISSING_DATA) {
-                    android.widget.Toast.makeText(this, "Farsi TTS missing. Launching installer...", android.widget.Toast.LENGTH_LONG).show()
-                    val installIntent = android.content.Intent()
-                    installIntent.action = TextToSpeech.Engine.ACTION_INSTALL_TTS_DATA
-                    installIntent.flags = android.content.Intent.FLAG_ACTIVITY_NEW_TASK
-                    try {
-                        startActivity(installIntent)
-                    } catch (e: Exception) {
-                        Log.e("TTS", "Could not launch TTS installer", e)
-                    }
-                } else {
-                    android.widget.Toast.makeText(this, "Farsi TTS is not supported on your device.", android.widget.Toast.LENGTH_LONG).show()
-                }
+    private fun speakLetter(letterId: Int) {
+        val resId = resources.getIdentifier("letter_$letterId", "raw", packageName)
+        if (resId != 0) {
+            val mediaPlayer = MediaPlayer.create(this, resId)
+            mediaPlayer?.setOnCompletionListener {
+                it.release()
             }
-        } else {
-            Log.e("TTS", "Initialization failed")
+            mediaPlayer?.start()
         }
-    }
-
-    private fun speak(text: String) {
-        tts?.speak(text, TextToSpeech.QUEUE_FLUSH, null, "")
-    }
-
-    override fun onDestroy() {
-        if (tts != null) {
-            tts?.stop()
-            tts?.shutdown()
-        }
-        super.onDestroy()
     }
 }
