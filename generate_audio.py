@@ -1,6 +1,7 @@
 import os
 import re
-from gtts import gTTS
+from urllib.parse import quote
+import time
 
 kt_file = "app/src/main/java/com/example/farsialphabet/Data.kt"
 out_dir = "app/src/main/res/raw"
@@ -16,12 +17,17 @@ for match in re.finditer(pattern, content):
     letter_id = match.group(1)
     full_form = match.group(2)
     
-    # Try 'fa' (Persian), fallback to 'ar' (Arabic) if gTTS lacks 'fa'
-    try:
-        tts = gTTS(text=full_form, lang='ar') 
-        tts.save(f"{out_dir}/letter_{letter_id}.mp3")
-        print(f"Generated audio for letter {letter_id}: {full_form}")
-    except Exception as e:
-        print(f"Failed {letter_id}: {e}")
+    encoded_text = quote(full_form)
+    url = f"https://translate.google.com/translate_tts?ie=UTF-8&q={encoded_text}&tl=fa&client=tw-ob"
+    out_path = f"{out_dir}/letter_{letter_id}.mp3"
+    
+    print(f"Downloading audio for letter {letter_id}: {full_form}")
+    
+    # Use curl to download it
+    ret = os.system(f"curl -s -A 'Mozilla/5.0' '{url}' -o {out_path}")
+    if ret != 0:
+        print(f"Failed {letter_id}")
+        
+    time.sleep(0.5)
 
-print("Done generating audio files.")
+print("Done downloading Farsi audio files with curl.")
