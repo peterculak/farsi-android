@@ -5,6 +5,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -18,7 +19,8 @@ import com.example.farsialphabet.SettingsRepository
 @Composable
 fun SettingsScreen(
     settingsRepository: SettingsRepository,
-    onNavigateBack: () -> Unit
+    onNavigateBack: () -> Unit,
+    speakText: (String) -> Unit
 ) {
     var reverseMode by remember { mutableStateOf(settingsRepository.isReverseModeEnabled) }
     var autoTransition by remember { mutableStateOf(settingsRepository.isAutoTransitionEnabled) }
@@ -115,7 +117,12 @@ fun SettingsScreen(
                     ) {
                         Column {
                             Text(text = "${letter.name} (${letter.transliteration})", fontSize = 16.sp)
-                            Text(text = "${letter.fullForm}  ${letter.shortForm}", fontSize = 24.sp)
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Text(text = "${letter.fullForm}  ${letter.shortForm}", fontSize = 24.sp)
+                                IconButton(onClick = { speakText(letter.fullForm) }) {
+                                    Icon(Icons.Default.PlayArrow, contentDescription = "Pronounce", modifier = Modifier.size(24.dp))
+                                }
+                            }
                         }
                         Switch(
                             checked = isEnabled,

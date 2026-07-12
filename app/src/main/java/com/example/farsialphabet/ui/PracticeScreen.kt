@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -21,7 +22,8 @@ import com.example.farsialphabet.SettingsRepository
 @Composable
 fun PracticeScreen(
     settingsRepository: SettingsRepository,
-    onNavigateToSettings: () -> Unit
+    onNavigateToSettings: () -> Unit,
+    speakText: (String) -> Unit
 ) {
     val enabledLetters = remember { mutableStateOf(settingsRepository.getEnabledLetters()) }
     val isReverseMode = remember { mutableStateOf(settingsRepository.isReverseModeEnabled) }
@@ -129,7 +131,12 @@ fun PracticeScreen(
                     textAlign = TextAlign.Center
                 )
                 Spacer(modifier = Modifier.height(16.dp))
-                Text(text = "${targetLetter.fullForm}   ${targetLetter.shortForm}", fontSize = 64.sp, fontWeight = FontWeight.Bold)
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(text = "${targetLetter.fullForm}   ${targetLetter.shortForm}", fontSize = 64.sp, fontWeight = FontWeight.Bold)
+                    IconButton(onClick = { speakText(targetLetter.fullForm) }) {
+                        Icon(Icons.Default.PlayArrow, contentDescription = "Pronounce", modifier = Modifier.size(36.dp))
+                    }
+                }
             }
 
             Spacer(modifier = Modifier.height(32.dp))
