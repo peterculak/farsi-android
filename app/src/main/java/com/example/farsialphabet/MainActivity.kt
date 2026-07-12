@@ -64,6 +64,19 @@ class MainActivity : ComponentActivity(), TextToSpeech.OnInitListener {
             val result = tts?.setLanguage(locale)
             if (result == TextToSpeech.LANG_MISSING_DATA || result == TextToSpeech.LANG_NOT_SUPPORTED) {
                 Log.e("TTS", "Language not supported or missing data")
+                if (result == TextToSpeech.LANG_MISSING_DATA) {
+                    android.widget.Toast.makeText(this, "Farsi TTS missing. Launching installer...", android.widget.Toast.LENGTH_LONG).show()
+                    val installIntent = android.content.Intent()
+                    installIntent.action = TextToSpeech.Engine.ACTION_INSTALL_TTS_DATA
+                    installIntent.flags = android.content.Intent.FLAG_ACTIVITY_NEW_TASK
+                    try {
+                        startActivity(installIntent)
+                    } catch (e: Exception) {
+                        Log.e("TTS", "Could not launch TTS installer", e)
+                    }
+                } else {
+                    android.widget.Toast.makeText(this, "Farsi TTS is not supported on your device.", android.widget.Toast.LENGTH_LONG).show()
+                }
             }
         } else {
             Log.e("TTS", "Initialization failed")
