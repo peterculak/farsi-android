@@ -109,6 +109,14 @@ class MainActivity : ComponentActivity() {
                 setOnCompletionListener { release() }
                 start()
             }
+        } else {
+            val resId = resources.getIdentifier("letter_$letterId", "raw", packageName)
+            if (resId != 0) {
+                MediaPlayer.create(this, resId)?.apply {
+                    setOnCompletionListener { release() }
+                    start()
+                }
+            }
         }
     }
 }

@@ -104,11 +104,14 @@ fun SettingsScreen(
                                     Icon(Icons.Default.PlayArrow, contentDescription = "Pronounce", modifier = Modifier.size(24.dp))
                                 }
                                 val isThisRecording = recordingLetterId == letter.id
+                                var hasCustom by remember { mutableStateOf(audioRecorderHelper.hasCustomRecording(letter.id)) }
+
                                 Button(
                                     onClick = {
                                         if (isThisRecording) {
                                             audioRecorderHelper.stopRecording()
                                             recordingLetterId = null
+                                            hasCustom = true
                                         } else {
                                             if (recordingLetterId != null) {
                                                 audioRecorderHelper.stopRecording()
@@ -129,6 +132,20 @@ fun SettingsScreen(
                                     contentPadding = PaddingValues(horizontal = 8.dp, vertical = 0.dp)
                                 ) {
                                     Text(if (isThisRecording) "Stop" else "Rec", fontSize = 12.sp)
+                                }
+
+                                if (hasCustom && !isThisRecording) {
+                                    Button(
+                                        onClick = {
+                                            audioRecorderHelper.deleteRecording(letter.id)
+                                            hasCustom = false
+                                        },
+                                        colors = ButtonDefaults.buttonColors(containerColor = Color.DarkGray),
+                                        modifier = Modifier.padding(start = 4.dp),
+                                        contentPadding = PaddingValues(horizontal = 8.dp, vertical = 0.dp)
+                                    ) {
+                                        Text("Restore", fontSize = 12.sp)
+                                    }
                                 }
                             }
                         }

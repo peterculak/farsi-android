@@ -60,4 +60,15 @@ class AudioRecorderHelper(private val context: Context) {
             Log.d("AudioRecorder", "Stopped recording")
         }
     }
+
+    fun hasCustomRecording(letterId: Int): Boolean {
+        return getCustomRecordingFile(letterId).exists()
+    }
+
+    fun deleteRecording(letterId: Int) {
+        val file = getCustomRecordingFile(letterId)
+        if (file.exists()) {
+            file.delete()
+        }
+    }
 }
