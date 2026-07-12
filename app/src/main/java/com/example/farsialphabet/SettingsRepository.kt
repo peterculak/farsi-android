@@ -10,10 +10,6 @@ class SettingsRepository(context: Context) {
         get() = prefs.getBoolean("reverse_mode", false)
         set(value) = prefs.edit().putBoolean("reverse_mode", value).apply()
 
-    var isAutoTransitionEnabled: Boolean
-        get() = prefs.getBoolean("auto_transition", false)
-        set(value) = prefs.edit().putBoolean("auto_transition", value).apply()
-
     var autoTransitionDelayMs: Long
         get() = prefs.getLong("auto_transition_delay", 1000L)
         set(value) = prefs.edit().putLong("auto_transition_delay", value).apply()

@@ -22,37 +22,22 @@ import com.example.farsialphabet.SettingsRepository
 @Composable
 fun PracticeScreen(
     settingsRepository: SettingsRepository,
-    onNavigateToSettings: () -> Unit,
-    speakLetter: (Int) -> Unit
+    speakLetter: (Int) -> Unit,
+    isVisible: Boolean
 ) {
     val enabledLetters = remember { mutableStateOf(settingsRepository.getEnabledLetters()) }
     val isReverseMode = remember { mutableStateOf(settingsRepository.isReverseModeEnabled) }
-    val isAutoTransition = remember { mutableStateOf(settingsRepository.isAutoTransitionEnabled) }
-    val autoTransitionDelay = remember { mutableStateOf(settingsRepository.autoTransitionDelayMs) }
 
-    LaunchedEffect(Unit) {
-        enabledLetters.value = settingsRepository.getEnabledLetters()
-        isReverseMode.value = settingsRepository.isReverseModeEnabled
-        isAutoTransition.value = settingsRepository.isAutoTransitionEnabled
-        autoTransitionDelay.value = settingsRepository.autoTransitionDelayMs
+    LaunchedEffect(isVisible) {
+        if (isVisible) {
+            enabledLetters.value = settingsRepository.getEnabledLetters()
+            isReverseMode.value = settingsRepository.isReverseModeEnabled
+        }
     }
 
     if (enabledLetters.value.size < 3) {
-        Scaffold(
-            topBar = {
-                TopAppBar(
-                    title = { Text("Practice") },
-                    actions = {
-                        IconButton(onClick = onNavigateToSettings) {
-                            Icon(Icons.Default.Settings, contentDescription = "Settings")
-                        }
-                    }
-                )
-            }
-        ) { padding ->
-            Box(modifier = Modifier.padding(padding).fillMaxSize(), contentAlignment = Alignment.Center) {
-                Text("Please enable at least 3 letters in settings.", fontSize = 18.sp)
-            }
+        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            Text("Please enable at least 3 letters in settings.", fontSize = 18.sp)
         }
         return
     }
@@ -79,63 +64,56 @@ fun PracticeScreen(
     }
 
     LaunchedEffect(answered) {
-        if (answered && isAutoTransition.value) {
-            kotlinx.coroutines.delay(autoTransitionDelay.value)
+        if (answered) {
+            kotlinx.coroutines.delay(settingsRepository.autoTransitionDelayMs)
             nextQuestion()
         }
     }
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text("Practice") },
-                actions = {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text("Reverse", fontSize = 14.sp)
-                        Switch(
-                            checked = isReverseMode.value,
-                            onCheckedChange = {
-                                isReverseMode.value = it
-                                settingsRepository.isReverseModeEnabled = it
-                                nextQuestion()
-                            },
-                            modifier = Modifier.padding(horizontal = 8.dp)
-                        )
-                        IconButton(onClick = onNavigateToSettings) {
-                            Icon(Icons.Default.Settings, contentDescription = "Settings")
-                        }
-                    }
-                }
+    Column(
+        modifier = Modifier.fillMaxSize(),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(16.dp),
+            horizontalArrangement = Arrangement.End,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text("Reverse", fontSize = 14.sp)
+            Switch(
+                checked = isReverseMode.value,
+                onCheckedChange = {
+                    isReverseMode.value = it
+                    settingsRepository.isReverseModeEnabled = it
+                    nextQuestion()
+                },
+                modifier = Modifier.padding(start = 8.dp)
             )
         }
-    ) { padding ->
-        Column(
-            modifier = Modifier.padding(padding).fillMaxSize(),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
-        ) {
-            if (isReverseMode.value) {
+        
+        Spacer(modifier = Modifier.height(32.dp))
+        
+        Box(
+                modifier = Modifier.fillMaxWidth().height(60.dp),
+                contentAlignment = Alignment.Center
+            ) {
                 Text(
-                    text = "What is the Farsi letter for:", 
+                    text = if (isReverseMode.value) "What is the Farsi letter for:" else "What is the English transliteration for:", 
                     fontSize = 20.sp,
                     modifier = Modifier.padding(horizontal = 16.dp),
                     textAlign = TextAlign.Center
                 )
-                Spacer(modifier = Modifier.height(16.dp))
-                Text(text = targetLetter.transliteration, fontSize = 64.sp, fontWeight = FontWeight.Bold)
-            } else {
-                Text(
-                    text = "What is the English transliteration for:", 
-                    fontSize = 20.sp,
-                    modifier = Modifier.padding(horizontal = 16.dp),
-                    textAlign = TextAlign.Center
-                )
-                Spacer(modifier = Modifier.height(16.dp))
-                Row(verticalAlignment = Alignment.CenterVertically) {
+            }
+            Spacer(modifier = Modifier.height(16.dp))
+            Box(
+                modifier = Modifier.fillMaxWidth().height(100.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                if (isReverseMode.value) {
+                    Text(text = targetLetter.transliteration, fontSize = 64.sp, fontWeight = FontWeight.Bold)
+                } else {
                     Text(text = "${targetLetter.fullForm}   ${targetLetter.shortForm}", fontSize = 64.sp, fontWeight = FontWeight.Bold)
-                    IconButton(onClick = { speakLetter(targetLetter.id) }) {
-                        Icon(Icons.Default.PlayArrow, contentDescription = "Pronounce", modifier = Modifier.size(36.dp))
-                    }
                 }
             }
 
@@ -165,7 +143,7 @@ fun PracticeScreen(
                             MaterialTheme.colorScheme.primary
                         }
                     ),
-                    modifier = Modifier.fillMaxWidth(0.8f).padding(8.dp)
+                    modifier = Modifier.fillMaxWidth(0.8f).padding(8.dp).height(56.dp)
                 ) {
                     if (isReverseMode.value) {
                         Text(text = "${option.fullForm}   ${option.shortForm}", fontSize = 24.sp)
@@ -173,6 +151,15 @@ fun PracticeScreen(
                         Text(text = option.transliteration, fontSize = 24.sp)
                     }
                 }
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+            
+            IconButton(
+                onClick = { speakLetter(targetLetter.id) },
+                modifier = Modifier.size(64.dp)
+            ) {
+                Icon(Icons.Default.PlayArrow, contentDescription = "Pronounce", modifier = Modifier.fillMaxSize())
             }
 
             Spacer(modifier = Modifier.height(32.dp))
@@ -191,7 +178,6 @@ fun PracticeScreen(
                 enabled = answered
             ) {
                 Text("Next Question", fontSize = 20.sp)
-            }
         }
     }
 }
