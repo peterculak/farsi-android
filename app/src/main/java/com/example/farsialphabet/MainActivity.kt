@@ -49,6 +49,7 @@ class MainActivity : ComponentActivity() {
                     color = MaterialTheme.colorScheme.background
                 ) {
                     var currentScreen by remember { mutableStateOf(Screen.Learning) }
+                    var learnResetTrigger by remember { mutableStateOf(0) }
 
                     Scaffold(
                         bottomBar = {
@@ -57,7 +58,13 @@ class MainActivity : ComponentActivity() {
                                     icon = { Icon(Icons.Default.Home, contentDescription = "Learn") },
                                     label = { Text("Learn") },
                                     selected = currentScreen == Screen.Learning,
-                                    onClick = { currentScreen = Screen.Learning }
+                                    onClick = {
+                                        if (currentScreen == Screen.Learning) {
+                                            learnResetTrigger++
+                                        } else {
+                                            currentScreen = Screen.Learning
+                                        }
+                                    }
                                 )
                                 NavigationBarItem(
                                     icon = { Icon(Icons.Default.Edit, contentDescription = "Practice") },
@@ -76,7 +83,7 @@ class MainActivity : ComponentActivity() {
                     ) { innerPadding ->
                         Box(modifier = Modifier.padding(innerPadding).fillMaxSize()) {
                             Box(modifier = Modifier.fillMaxSize().offset(x = if (currentScreen == Screen.Learning) 0.dp else 10000.dp)) {
-                                LearningScreen(speakLetter = ::speakLetter)
+                                LearningScreen(speakLetter = ::speakLetter, resetTrigger = learnResetTrigger)
                             }
                             Box(modifier = Modifier.fillMaxSize().offset(x = if (currentScreen == Screen.Practice) 0.dp else 10000.dp)) {
                                 PracticeScreen(

@@ -15,11 +15,19 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.farsialphabet.LetterRepository
 
+import androidx.compose.runtime.LaunchedEffect
+
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun LearningScreen(speakLetter: (Int) -> Unit) {
+fun LearningScreen(speakLetter: (Int) -> Unit, resetTrigger: Int) {
     val letters = LetterRepository.letters
     val pagerState = rememberPagerState(pageCount = { letters.size })
+
+    LaunchedEffect(resetTrigger) {
+        if (resetTrigger > 0) {
+            pagerState.animateScrollToPage(0)
+        }
+    }
 
     HorizontalPager(
         state = pagerState,
