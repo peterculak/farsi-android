@@ -35,12 +35,10 @@ enum class Screen {
 
 class MainActivity : ComponentActivity() {
     private lateinit var settingsRepository: SettingsRepository
-    private lateinit var audioRecorderHelper: AudioRecorderHelper
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         settingsRepository = SettingsRepository(this)
-        audioRecorderHelper = AudioRecorderHelper(this)
 
         setContent {
             MaterialTheme {
@@ -95,8 +93,7 @@ class MainActivity : ComponentActivity() {
                             Box(modifier = Modifier.fillMaxSize().offset(x = if (currentScreen == Screen.Settings) 0.dp else 10000.dp)) {
                                 SettingsScreen(
                                     settingsRepository = settingsRepository,
-                                    speakLetter = ::speakLetter,
-                                    audioRecorderHelper = audioRecorderHelper
+                                    speakLetter = ::speakLetter
                                 )
                             }
                         }
@@ -107,22 +104,11 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun speakLetter(letterId: Int) {
-        val customFile = audioRecorderHelper.getCustomRecordingFile(letterId)
-        
-        if (customFile.exists()) {
-            val mediaPlayer = MediaPlayer().apply {
-                setDataSource(customFile.absolutePath)
-                prepare()
+        val resId = resources.getIdentifier("letter_$letterId", "raw", packageName)
+        if (resId != 0) {
+            MediaPlayer.create(this, resId)?.apply {
                 setOnCompletionListener { release() }
                 start()
-            }
-        } else {
-            val resId = resources.getIdentifier("letter_$letterId", "raw", packageName)
-            if (resId != 0) {
-                MediaPlayer.create(this, resId)?.apply {
-                    setOnCompletionListener { release() }
-                    start()
-                }
             }
         }
     }
