@@ -15,10 +15,12 @@ import androidx.compose.ui.Modifier
 import com.example.farsialphabet.ui.PracticeScreen
 import com.example.farsialphabet.ui.SettingsScreen
 import com.example.farsialphabet.ui.LearningScreen
+import com.example.farsialphabet.ui.TracingScreen
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.Create
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -30,7 +32,7 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.ui.unit.dp
 
 enum class Screen {
-    Learning, Practice, Settings
+    Learning, Tracing, Practice, Settings
 }
 
 class MainActivity : ComponentActivity() {
@@ -65,6 +67,12 @@ class MainActivity : ComponentActivity() {
                                     }
                                 )
                                 NavigationBarItem(
+                                    icon = { Icon(Icons.Default.Create, contentDescription = "Trace") },
+                                    label = { Text("Trace") },
+                                    selected = currentScreen == Screen.Tracing,
+                                    onClick = { currentScreen = Screen.Tracing }
+                                )
+                                NavigationBarItem(
                                     icon = { Icon(Icons.Default.Edit, contentDescription = "Practice") },
                                     label = { Text("Practice") },
                                     selected = currentScreen == Screen.Practice,
@@ -82,6 +90,13 @@ class MainActivity : ComponentActivity() {
                         Box(modifier = Modifier.padding(innerPadding).fillMaxSize()) {
                             Box(modifier = Modifier.fillMaxSize().offset(x = if (currentScreen == Screen.Learning) 0.dp else 10000.dp)) {
                                 LearningScreen(speakLetter = ::speakLetter, resetTrigger = learnResetTrigger)
+                            }
+                            Box(modifier = Modifier.fillMaxSize().offset(x = if (currentScreen == Screen.Tracing) 0.dp else 10000.dp)) {
+                                TracingScreen(
+                                    settingsRepository = settingsRepository,
+                                    speakLetter = ::speakLetter,
+                                    isVisible = currentScreen == Screen.Tracing
+                                )
                             }
                             Box(modifier = Modifier.fillMaxSize().offset(x = if (currentScreen == Screen.Practice) 0.dp else 10000.dp)) {
                                 PracticeScreen(
