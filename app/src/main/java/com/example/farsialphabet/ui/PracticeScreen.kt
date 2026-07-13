@@ -20,6 +20,7 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.foundation.gestures.detectDragGestures
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -196,6 +197,20 @@ fun PracticeScreen(
                         .height(216.dp)
                         .clip(RoundedCornerShape(8.dp))
                         .background(Color.White)
+                        .pointerInput(Unit) {
+                            detectTapGestures(
+                                onTap = { offset ->
+                                    if (!isAnswerRevealed) {
+                                        val newPath = Path().apply {
+                                            moveTo(offset.x, offset.y)
+                                            lineTo(offset.x + 0.1f, offset.y)
+                                        }
+                                        paths.add(newPath)
+                                        drawTrigger++
+                                    }
+                                }
+                            )
+                        }
                         .pointerInput(Unit) {
                             detectDragGestures(
                                 onDragStart = { offset ->
