@@ -30,6 +30,8 @@ import com.example.farsialphabet.FarsiLetter
 import com.example.farsialphabet.LetterRepository
 import com.example.farsialphabet.SettingsRepository
 
+data class StrokePath(val path: Path, val width: Float = 15f)
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PracticeScreen(
@@ -63,7 +65,7 @@ fun PracticeScreen(
     var answered by remember { mutableStateOf(false) }
     var selectedOptionId by remember { mutableStateOf<Int?>(null) }
     
-    val paths = remember { mutableStateListOf<Path>() }
+    val paths = remember { mutableStateListOf<StrokePath>() }
     var currentPath by remember { mutableStateOf<Path?>(null) }
     var isAnswerRevealed by remember { mutableStateOf(false) }
     var drawTrigger by remember { mutableStateOf(0) }
@@ -205,7 +207,7 @@ fun PracticeScreen(
                                             moveTo(offset.x, offset.y)
                                             lineTo(offset.x + 0.1f, offset.y)
                                         }
-                                        paths.add(newPath)
+                                        paths.add(StrokePath(newPath, 30f))
                                         drawTrigger++
                                     }
                                 }
@@ -217,7 +219,7 @@ fun PracticeScreen(
                                     if (!isAnswerRevealed) {
                                         val newPath = Path().apply { moveTo(offset.x, offset.y) }
                                         currentPath = newPath
-                                        paths.add(newPath)
+                                        paths.add(StrokePath(newPath, 15f))
                                         drawTrigger++
                                     }
                                 },
@@ -235,12 +237,12 @@ fun PracticeScreen(
                 ) {
                     Canvas(modifier = Modifier.fillMaxSize()) {
                         drawTrigger // Force recomposition
-                        paths.forEach { path ->
+                        paths.forEach { strokePath ->
                             drawPath(
-                                path = path,
+                                path = strokePath.path,
                                 color = Color.Black,
                                 style = Stroke(
-                                    width = 15f,
+                                    width = strokePath.width,
                                     cap = StrokeCap.Round,
                                     join = StrokeJoin.Round
                                 )

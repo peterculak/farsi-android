@@ -47,7 +47,7 @@ fun TracingScreen(
     }
 
     var targetLetter by remember { mutableStateOf(enabledLetters.value.random()) }
-    val paths = remember { mutableStateListOf<Path>() }
+    val paths = remember { mutableStateListOf<StrokePath>() }
     var currentPath by remember { mutableStateOf<Path?>(null) }
     var drawTrigger by remember { mutableStateOf(0) }
 
@@ -95,7 +95,7 @@ fun TracingScreen(
                                 moveTo(offset.x, offset.y)
                                 lineTo(offset.x + 0.1f, offset.y)
                             }
-                            paths.add(newPath)
+                            paths.add(StrokePath(newPath, 30f))
                             drawTrigger++
                         }
                     )
@@ -105,7 +105,7 @@ fun TracingScreen(
                         onDragStart = { offset ->
                             val newPath = Path().apply { moveTo(offset.x, offset.y) }
                             currentPath = newPath
-                            paths.add(newPath)
+                            paths.add(StrokePath(newPath, 15f))
                             drawTrigger++
                         },
                         onDragEnd = {
@@ -131,12 +131,12 @@ fun TracingScreen(
             // The drawing canvas
             Canvas(modifier = Modifier.fillMaxSize()) {
                 drawTrigger // Force recomposition
-                paths.forEach { path ->
+                paths.forEach { strokePath ->
                     drawPath(
-                        path = path,
+                        path = strokePath.path,
                         color = Color.Black,
                         style = Stroke(
-                            width = 15f,
+                            width = strokePath.width,
                             cap = StrokeCap.Round,
                             join = StrokeJoin.Round
                         )
